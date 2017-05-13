@@ -29,14 +29,16 @@ class AgentConfig(object):
   double_q = False
   dueling = False
 
+  priority_exp = False
+
   _test_step = 5 * scale
   _save_step = _test_step * 10
 
 class EnvironmentConfig(object):
   env_name = 'Breakout-v0'
 
-  screen_width  = 84
-  screen_height = 84
+  screen_width  = 42
+  screen_height = 42
   max_reward = 1.
   min_reward = -1.
 

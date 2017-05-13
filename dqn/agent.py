@@ -8,7 +8,7 @@ import tensorflow as tf
 
 from .base import BaseModel
 from .history import History
-from .replay_memory import ReplayMemory
+from .replay_memory import ReplayMemory,PrioritizedReplayMemory
 from .ops import linear, conv2d, clipped_error
 from .utils import get_time, save_pkl, load_pkl
 
@@ -19,8 +19,18 @@ class Agent(BaseModel):
     self.weight_dir = 'weights'
 
     self.env = environment
+
+    
+    if self.config.priority_exp:
+      self.memory = PrioritizedReplayMemory(self.config, self.model_dir)
+
+    else:
+      self.memory = ReplayMemory(self.config, self.model_dir)
+        
     self.history = History(self.config)
-    self.memory = ReplayMemory(self.config, self.model_dir)
+
+
+    
 
     with tf.variable_scope('step'):
       self.step_op = tf.Variable(0, trainable=False, name='step')
@@ -128,8 +138,20 @@ class Agent(BaseModel):
   def observe(self, screen, reward, action, terminal):
     reward = max(self.min_reward, min(self.max_reward, reward))
 
-    self.history.add(screen)
-    self.memory.add(screen, reward, action, terminal)
+    #IF WE HAVE PRIORITY REPLAY ENABLED WE STORE THE PREVIOUS STATE WITH IT
+    # We let the agent handle the vision with the historylenght and not the replaymemory
+    if self.config.priority_exp:
+      #old_state
+      s_t = self.history.get()
+      self.history.add(screen)
+      #new state 
+      s_t_plus_1 = self.history.get()
+      #different add, with states old state en new state included
+      self.memory.add(s_t, reward, action, s_t_plus_1, terminal)
+
+    else:
+      self.history.add(screen)
+      self.memory.add(screen, reward, action, terminal)
 
     if self.step > self.learn_start:
       if self.step % self.train_frequency == 0:
@@ -141,8 +163,12 @@ class Agent(BaseModel):
   def q_learning_mini_batch(self):
     if self.memory.count < self.history_length:
       return
+    elif self.config.priority_exp:
+        s_t, action, reward, s_t_plus_1, terminal, weights, indices = self.memory.sample(global_step=self.step)
+
     else:
       s_t, action, reward, s_t_plus_1, terminal = self.memory.sample()
+      weights = np.array([1.0] * self.config.batch_size)
 
     t = time.time()
     if self.double_q:
@@ -161,12 +187,16 @@ class Agent(BaseModel):
       max_q_t_plus_1 = np.max(q_t_plus_1, axis=1)
       target_q_t = (1. - terminal) * self.discount * max_q_t_plus_1 + reward
 
-    _, q_t, loss, summary_str = self.sess.run([self.optim, self.q, self.loss, self.q_summary], {
+    _, q_t, loss, summary_str, weighted_delta = self.sess.run([self.optim, self.q, self.loss, self.q_summary,self.weighted_delta], {
       self.target_q_t: target_q_t,
       self.action: action,
       self.s_t: s_t,
       self.learning_rate_step: self.step,
+      self.importance_weight: weights
     })
+
+    if self.config.priority_exp:
+                self.memory.update_priority(indices, weighted_delta)    
 
     self.writer.add_summary(summary_str, self.step)
     self.total_loss += loss
@@ -290,9 +320,12 @@ class Agent(BaseModel):
 
       self.delta = self.target_q_t - q_acted
 
+      self.importance_weight = tf.placeholder(name = 'importance_weight', shape = (None), dtype = tf.float32)
+      self.weighted_delta = tf.multiply(self.delta, self.importance_weight)
+
       self.global_step = tf.Variable(0, trainable=False)
 
-      self.loss = tf.reduce_mean(clipped_error(self.delta), name='loss')
+      self.loss = tf.reduce_mean(clipped_error(self.weighted_delta), name='loss')
       self.learning_rate_step = tf.placeholder('int64', None, name='learning_rate_step')
       self.learning_rate_op = tf.maximum(self.learning_rate_minimum,
           tf.train.exponential_decay(

@@ -1,11 +1,38 @@
+import cv2
+from gym.spaces.box import Box
 import gym
 import random
 import numpy as np
 from .utils import rgb2gray, imresize
 
+
+# def _process_frame42(frame):
+#     frame = frame[34:34+160, :160]
+#     # Resize by half, then down to 42x42 (essentially mipmapping). If
+#     # we resize directly we lose pixels that, when mapped to 42x42,
+#     # aren't close enough to the pixel boundary.
+#     frame = cv2.resize(frame, (80, 80))
+#     frame = cv2.resize(frame, (42, 42))
+#     frame = frame.mean(2)
+#     frame = frame.astype(np.float32)
+#     frame *= (1.0 / 255.0)
+#     frame = np.reshape(frame, [42, 42, 1])
+#     return frame
+
+# class AtariRescale42x42(vectorized.ObservationWrapper):
+#     def __init__(self, env=None):
+#         super(AtariRescale42x42, self).__init__(env)
+#         self.observation_space = Box(0.0, 1.0, [42, 42, 1])
+
+#     def _observation(self, observation_n):
+#         return [_process_frame42(observation) for observation in observation_n]
+
+
 class Environment(object):
   def __init__(self, config):
     self.env = gym.make(config.env_name)
+    #rescale frames
+    # self.env = AtariRescale42x42(self.env)
 
     screen_width, screen_height, self.action_repeat, self.random_start = \
         config.screen_width, config.screen_height, config.action_repeat, config.random_start
