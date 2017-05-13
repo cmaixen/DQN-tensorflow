@@ -37,8 +37,8 @@ class AgentConfig(object):
 class EnvironmentConfig(object):
   env_name = 'Breakout-v0'
 
-  screen_width  = 42
-  screen_height = 42
+  screen_width  = 84
+  screen_height = 84
   max_reward = 1.
   min_reward = -1.
 

@@ -318,7 +318,7 @@ class Agent(BaseModel):
       self.delta = self.target_q_t - q_acted
 
       self.importance_weight = tf.placeholder(name = 'importance_weight', shape = (None), dtype = tf.float32)
-      self.weighted_delta = tf.multiply(self.delta, self.importance_weight)
+      self.weighted_delta = tf.mul(self.delta, self.importance_weight)
 
       self.global_step = tf.Variable(0, trainable=False)
 
