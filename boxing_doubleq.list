@@ -1,0 +1,10 @@
+python main.py --env_name=Boxing-v0 --random_seed=123 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=321 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=280 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=300 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=999 --is_train=True --use_gpu=False --double_q=True 
+python main.py --env_name=Boxing-v0 --random_seed=456 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=654 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=888 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=555 --is_train=True --use_gpu=False --double_q=True
+python main.py --env_name=Boxing-v0 --random_seed=834 --is_train=True --use_gpu=False --double_q=True
