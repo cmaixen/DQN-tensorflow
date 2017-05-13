@@ -4,7 +4,7 @@
 # memory requirements change this when using more/less experience replay samples
 #PBS -l mem=16gb
 # max run time
-#PBS -l walltime=800:00:00
+#PBS -l walltime=300:00:00
 # output and error files
 #PBS -o pong_doubleq.out
 #PBS -e pong_doubleq.err
