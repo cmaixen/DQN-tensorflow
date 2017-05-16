@@ -108,7 +108,7 @@ class PrioritizedReplayMemory(object):
     def __init__(self, config, model_dir):
 
       self.model_dir = model_dir
-
+      self.cnn_format = config.cnn_format
 
       self.size = config.memory_size
       
@@ -181,7 +181,7 @@ class PrioritizedReplayMemory(object):
 
     def fix_index(self):
         """
-        get next insert index
+        get next insert index of our memory
         :return: index, int
         """
         if self.record_size <= self.size:
@@ -199,14 +199,8 @@ class PrioritizedReplayMemory(object):
             return self.index
 
 
-    #ADD EN SAMPLE MOETEN NOG GEFIXED WORDEN !!!!!
     def add(self, s_t, reward, action, s_t_plus_1, terminal):
-        """
-        store experience, suggest that experience is a tuple of (s1, a, r, s2, t)
-        so each experience is valid
-        :param experience: maybe a tuple, or list
-        :return: bool, indicate insert status
-        """
+
         experience = [s_t, reward, action, s_t_plus_1, terminal]
 
         insert_index = self.fix_index()
@@ -290,5 +284,10 @@ class PrioritizedReplayMemory(object):
         s_t_plus_1s = np.array([experience[3] for experience in experiences])
         terminals = np.array([experience[4] for experience in experiences])
 
-        return s_ts,rewards,actions,s_t_plus_1s,terminals, w, rank_e_id
+
+        if self.cnn_format == 'NHWC':
+            return np.transpose(s_ts, (0, 2, 3, 1)), actions, \
+        rewards, np.transpose( s_t_plus_1s, (0, 2, 3, 1)), terminals,w, rank_e_id
+        else:
+            return s_ts, actions, rewards ,s_t_plus_1s,terminals, w, rank_e_id
 
