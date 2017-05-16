@@ -286,8 +286,10 @@ class PrioritizedReplayMemory(object):
 
 
         if self.cnn_format == 'NHWC':
-            return np.transpose(s_ts, (0, 2, 3, 1)), actions, \
-        rewards, np.transpose( s_t_plus_1s, (0, 2, 3, 1)), terminals,w, rank_e_id
+
+            #no transpose is needed because the we transpose it already we giving it as input.
+            #the history object transposes it already
+            return s_ts, actions, rewards ,s_t_plus_1s,terminals, w, rank_e_id
         else:
             return s_ts, actions, rewards ,s_t_plus_1s,terminals, w, rank_e_id
 
