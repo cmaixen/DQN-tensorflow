@@ -244,7 +244,7 @@ class PrioritizedReplayMemory(object):
         # we get the probalitly of selection a certain rank
         distribution = self.power_law_distribution
         # we define our ranks
-        ranks = random.randint(1, self.priority_queue.size)
+        ranks = random.randint(1, self.priority_queue.size + 1)
         #selected k ranks based on our probability
         rank_list = np.random.choice(ranks,self.batch_size, p=distribution)
         print(rank_list)
