@@ -129,20 +129,23 @@ class PrioritizedReplayMemory(object):
       self._experience = {}
       self.priority_queue = BinaryHeap(self.size)
 
-      self.build_distribution()
+      
+      self.beta_grad = (1 - self.beta_zero) / (self.total_steps - self.learn_start)
 
       #to check if there is enough in mem
       self.count = 0
 
-    def build_distribution(self):
+    
+
+    def build_distribution(self,size):
         # P(i) = (rank i) ^ (-alpha) / sum ((rank i) ^ (-alpha))
         pdf = list(
-            map(lambda x: math.pow(x, -self.alpha), range(1, self.size + 1))
+            map(lambda x: math.pow(x, -self.alpha), range(1, size + 1))
         )
         pdf_sum = math.fsum(pdf)
-        self.power_law_distribution = list(map(lambda x: x / pdf_sum, pdf))
+        power_law_distribution = list(map(lambda x: x / pdf_sum, pdf))
 
-        self.beta_grad = (1 - self.beta_zero) / (self.total_steps - self.learn_start)
+        return power_law_distribution
 
     def save(self, filename="memory_state"):
         data = np.array([
@@ -242,12 +245,14 @@ class PrioritizedReplayMemory(object):
 
     def sample(self, global_step):
         # we get the probalitly of selection a certain rank
-        distribution = self.power_law_distribution
+        ranks = range(1, self.priority_queue.size + 1)
+        distribution = self.build_distribution(self.priority_queue.size)
         # we define our ranks
-        ranks = random.randint(1, self.priority_queue.size + 1)
         #selected k ranks based on our probability
+        print(len(distribution))
+        print(len(ranks))
         rank_list = np.random.choice(ranks,self.batch_size, p=distribution)
-        print(rank_list)
+ 
         # beta, increase by global_step, max 1
         beta = min(self.beta_zero + (global_step - self.learn_start - 1) * self.beta_grad, 1)
         # find all alpha pow, notice that pdf is a list, start from 0
