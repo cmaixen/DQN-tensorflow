@@ -321,8 +321,8 @@ class Agent(BaseModel):
       self.weighted_delta = tf.mul(self.delta, self.importance_weight)
 
       self.global_step = tf.Variable(0, trainable=False)
-
       self.loss = tf.reduce_mean(clipped_error(self.weighted_delta), name='loss')
+      #self.loss = tf.reduce_mean(clipped_error(self.delta), name='loss')
       self.learning_rate_step = tf.placeholder('int64', None, name='learning_rate_step')
       self.learning_rate_op = tf.maximum(self.learning_rate_minimum,
           tf.train.exponential_decay(

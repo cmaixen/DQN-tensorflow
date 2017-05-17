@@ -1,8 +1,6 @@
 #!/usr/bin/python
-# -*- encoding=utf-8 -*-
-# author: Ian
-# e-mail: stmayue@gmail.com
-# description: 
+#BASED ON https://github.com/Damcy/prioritized-experience-replay/blob/master/binary_heap.py
+
 
 import sys
 import math

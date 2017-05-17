@@ -6,10 +6,10 @@
 # max run time
 #PBS -l walltime=300:00:00
 # output and error files
-#PBS -o boxing_doubleq.out
-#PBS -e boxing_doubleq.err
-#PBS -N boxing_doubleq
-#PBS -t 1-10
+#PBS -o boxing_priorexp_solo.out
+#PBS -e boxing_priorexp_solo.err
+#PBS -N boxing_priorexp_solo
+#PBS -t 1
 #PBS -V
 
 
@@ -20,7 +20,7 @@ source activate dqn
 cd DQN-tensorflow
 
 # Execute the line matching the array index from file one_command_per_index.list:
-cmd=`head -${PBS_ARRAYID} ./hydrascripts/boxing_doubleq.list | tail -1`
+cmd=`head -${PBS_ARRAYID} ./hydrascripts/boxing_priorexp.list | tail -1`
 
 # Execute the command extracted from the file:
 eval $cmd

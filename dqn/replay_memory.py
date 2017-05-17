@@ -220,51 +220,40 @@ class PrioritizedReplayMemory(object):
     def retrieve(self, indices):
         """
         get experience from indices
-        :param indices: list of experience id
-        :return: experience replay sample
+
         """
         return [self._experience[v] for v in indices]
 
     def rebalance(self):
         """
         rebalance priority queue
-        :return: None
+
         """
         self.priority_queue.balance_tree()
 
     def update_priority(self, indices, delta):
         """
         update priority according indices and deltas
-        :param indices: list of experience id
-        :param delta: list of delta, order correspond to indices
-        :return: None
+
         """
         for i in range(0, len(indices)):
             self.priority_queue.update(math.fabs(delta[i]), indices[i])
         self.rebalance()
 
     def sample(self, global_step):
-        """
-        sample a mini batch from experience replay
-        :param global_step: now training step
-        :return: experience, list, samples
-        :return: w, list, weights
-        :return: rank_e_id, list, samples id, used for update priority
-        """
-
+        # we get the probalitly of selection a certain rank
         distribution = self.power_law_distribution
-        rank_list = []
-        # sample from k segments
-        for n in range(self.batch_size):
-            index = random.randint(1, self.priority_queue.size)
-            rank_list.append(index)
-
+        # we define our ranks
+        ranks = random.randint(1, self.priority_queue.size)
+        #selected k ranks based on our probability
+        rank_list = np.random.choice(ranks,self.batch_size, p=distribution)
+        print(rank_list)
         # beta, increase by global_step, max 1
         beta = min(self.beta_zero + (global_step - self.learn_start - 1) * self.beta_grad, 1)
         # find all alpha pow, notice that pdf is a list, start from 0
-        alpha_pow = [distribution[v - 1] for v in rank_list]
+        prob_i = [distribution[v - 1] for v in rank_list]
         # w = (N * P(i)) ^ (-beta) / max w
-        w = np.power(np.array(alpha_pow) * self.size, -beta)
+        w = np.power(np.array(prob_i) * self.size, -beta)
         w_max = max(w)
         w = np.divide(w, w_max)
         # rank list is priority id
@@ -276,7 +265,7 @@ class PrioritizedReplayMemory(object):
             print('ERRROR')
         # get experience id according rank_e_id
         experiences = self.retrieve(rank_e_id)
-
+        print(rank_e_id)
         #experience layout is [s_t, reward, action, s_t_plus_1, terminal]
         s_ts = np.array([experience[0] for experience in experiences])
         rewards = np.array([experience[1] for experience in experiences])

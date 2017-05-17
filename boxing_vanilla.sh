@@ -20,7 +20,7 @@ source activate dqn
 cd DQN-tensorflow
 
 # Execute the line matching the array index from file one_command_per_index.list:
-cmd=`head -${PBS_ARRAYID} boxing_vanilla.list | tail -1`
+cmd=`head -${PBS_ARRAYID} ./hydrascripts/boxing_vanilla.list | tail -1`
 
 # Execute the command extracted from the file:
 eval $cmd
