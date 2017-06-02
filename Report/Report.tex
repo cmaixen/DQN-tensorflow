@@ -1,0 +1,226 @@
+% This is "sig-alternate.tex" V1.9 April 2009
+% This file should be compiled with V2.4 of "sig-alternate.cls" April 2009
+%
+% This example file demonstrates the use of the 'sig-alternate.cls'
+% V2.4 LaTeX2e document class file. It is for those submitting
+% articles to ACM Conference Proceedings WHO DO NOT WISH TO
+% STRICTLY ADHERE TO THE SIGS (PUBS-BOARD-ENDORSED) STYLE.
+% The 'sig-alternate.cls' file will produce a similar-looking,
+% albeit, 'tighter' paper resulting in, invariably, fewer pages.
+%
+% ----------------------------------------------------------------------------------------------------------------
+% This .tex file (and associated .cls V2.4) produces:
+%       1) The Permission Statement
+%       2) The Conference (location) Info information
+%       3) The Copyright Line with ACM data
+%       4) NO page numbers
+%
+% as against the acm_proc_article-sp.cls file which
+% DOES NOT produce 1) thru' 3) above.
+%
+% Using 'sig-alternate.cls' you have control, however, from within
+% the source .tex file, over both the CopyrightYear
+% (defaulted to 200X) and the ACM Copyright Data
+% (defaulted to X-XXXXX-XX-X/XX/XX).
+% e.g.
+% \CopyrightYear{2007} will cause 2007 to appear in the copyright line.
+% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the copyright line.
+%
+% ---------------------------------------------------------------------------------------------------------------
+% This .tex source is an example which *does* use
+% the .bib file (from which the .bbl file % is produced).
+% REMEMBER HOWEVER: After having produced the .bbl file,
+% and prior to final submission, you *NEED* to 'insert'
+% your .bbl file into your source .tex file so as to provide
+% ONE 'self-contained' source file.
+%
+% ================= IF YOU HAVE QUESTIONS =======================
+% Questions regarding the SIGS styles, SIGS policies and
+% procedures, Conferences etc. should be sent to
+% Adrienne Griscti (griscti@acm.org)
+%
+% Technical questions _only_ to
+% Gerald Murray (murray@hq.acm.org)
+% ===============================================================
+%
+% For tracking purposes - this is V1.9 - April 2009
+
+\documentclass{sig-alternate}
+  \pdfpagewidth=8.5truein
+  \pdfpageheight=11truein
+\usepackage{amsmath}
+\setcounter{secnumdepth}{4}
+\DeclareMathOperator*{\argmax}{argmax} % thin space, limits underneath in displays
+
+\begin{document}
+%
+% --- Author Metadata here ---
+\conferenceinfo{CSCE 634, 2015}{Texas A\&M University}
+\CopyrightYear{2015}
+\crdata{ }
+%\CopyrightYear{2015} % Allows default copyright year (2002) to be over-ridden - IF NEED BE.
+%\crdata{} {978-1-4503-3196-8/15/04}  % Allows default copyright data (X-XXXXX-XX-X/XX/XX) to be over-ridden.
+% --- End of Author Metadata ---
+
+\title{Extending DQN with Double Q-learning and Prioritized Experience Replay}
+
+\numberofauthors{1}
+\author{
+\alignauthor Merckx, Yannick\\
+    \email{Vrije Universiteit Brussel}
+}
+\date{\today}
+% Just remember to make sure that the TOTAL number of authors
+% is the number that will appear on the first page PLUS the
+% number that will appear in the \additionalauthors section.
+
+
+\maketitle
+\begin{abstract}
+
+Prioritized Experience Replay and Double Q-learning are separately known to improve the performance of Deep Q-networks (DQN). How do those adjustments perform separately and combined. In this paper, we tried to answer these questions by implementing both extensions on an existing DQN framework and empirically evaluating the performance on two Atari Games, Krull and Boxing. We show that  BLA BLA BLA 
+\end{abstract}
+
+\section{Introduction}
+
+
+Prioritized Experience Replay \cite{schaul2015prioritized} and Double Q-learning \cite{van2016deep} are separately, two known adjustements to Deep Q-networks (DQN), who are known to sometimes improve the performance. A Deep Q-network is a reinforcement learning algorithm that achieves human-level performance across many Atari Games. \cite{mnih2015human} The goal of reinforcement learning \cite{sutton1998reinforcement} is to learn good policies for sequential decision problems, by optimizing a cumulative future reward signal. One of the most popular reinforcement learning algorithms is Q-learning \cite{watkins1992q}. One of the drawbacks of Q-learning is that it is known for occasionally learning extremely high action values. This is caused by the maximization step over the estimated action values, which tends to prefer overestimated to underestimated values. DQN is using the Q-learning algorithm and also tends to be overoptimistic. Double Q-learning is a reinforcement learning algorithm that can replace the Q-learning algorithm in the DQN and reduces the overoptimistic behaviour \cite{van2016deep}. Prioritized experience replay improves the performance in a total different way. With online reinforcement learning, updates the agent incrementally his parameters, while it is observing the stream of experiences. Reinforcement learning is known to be unstable or even to diverge when nonlinear function approximations. And since DQN is using a neural network to represent the action-value function , DQN was suffering instability. The two main reason of this instability were the close correlation between the updates and inability to remember rare and interesting experiences. \cite{mnih2015human} resolved this issues by adding \textit{Experience replay} \cite{lin1992self} to the DQN. Prioritized replay makes this experience replay more efficient and effective by prioritizing the selection of transitions. Where with the original DQN, the experiences were uniformly selected from the memory.  
+Now the main of question for this research is how does the DQN perform is both adjustments are implemented. We will try to answer this question by testing it empirically on two Atari games, Krull and Boxing. Before we continue with the Empirical results, we will first discus the implementation details of the adjustments in the following sections.
+ 
+\section{Background}
+
+When we want to solve a sequential decision problem, we can learn to estimate the optimal value for each action. This optimal value can be described as the maximum discounted future reward. Formally we describe the true value of an action $a$ in state $s$, when using a certain policy $\pi$ by: 
+\begin{equation}  
+\mathbb{Q}_{\pi}(a,b)\equiv \mathbb{E}[R_{1}+\gamma R_{2}+...\enskip| S_{0} = s, A_{0}= \alpha, \pi]
+\end{equation}
+
+ where $\gamma\in[0,1]$ is the discount factor, which allows us to express more importance to immediate rewards than later rewards. Then, the optimal value is $Q_{*}(s,a) = max_{\phi}Q_{\phi}(s,a) $ The optimal policy is a greedy policy, which selects the highest action value for each state.\\
+Q-learning \cite{watkins1992q} allows use to learn these optimal action values. Because it is for most interesting problems too large to calculate all action values, but we can try to approximate the optimal values by a parameterized value function $\Q(s,a;\theta_{t})$. The update function of the parameters follows the standard Q-learning update:
+
+\begin{equation}
+\label{parameter equation}
+\theta_{t+1}= \theta_{t} + \alpha(Y_{t}^Q - Q(S_{t},A_{t};\theta_{t}))\nabla_{\theta_{t}}Q(S_{t},A_{t};\theta_t)
+\end{equation}
+
+with $R_{t+1}$ the immediate observing reward, after taken action $A_{t}$ in state $S_{t}$. $\alpha$ is here the learning rate and $Y_{t}^Q$ the target, which is defined as:
+
+\begin{equation}
+Y_{t}^Q \equiv R_{t+1} + \gamma \max_{a}Q(S_{t+1},a;\theta_{t})
+\end{equation}
+
+
+Note that, there is a big resembles in the update rule of $\theta$ and stochastic gradient descent. \cite{mnih2015human} saw this resembles also during the development of the Deep Q-network and used this to implement Q-learning together with neural networks.
+
+\section{Deep Q-Networks}\label{Original DQN}
+
+A Deep Q-network (DQN) is a multilayer neural network that uses end-to-end reinforcement learning \cite{mnih2015human}. As earlier mentioned, we see a lot of similarities between equation \ref{parameter equation} and stochastic gradient descent. In DQN is the parameter $\theta$ from equation \ref{parameter equation} represented by the weights of the network. Note that, Reinforcement learning is known to be unstable for non linear approximations of the action values. This is also the case for DQN, since it is a neural network. \cite{mnih2015human} came up with two smart ingredients, which resolved the issue and dramatically improved the performance. The first ingredient is experience replay, which will be discussed in section \ref{Prioritized Experience Replay}. The second one is the use of a target network. The target network is just the same online network, only with older parameter values $\theta_{-}$. The parameter values $\theta_{-}$ are periodically updated with the parameter values $\theta$ of the online network and are kept fixed for a certain amount of steps. This causes, together with the experience replay, for a decorrelation for the experiences and resolves the instability. Because of the target network is the target of DQN slightly different:
+ 
+\begin{equation}
+\label{Parameter DQN}
+Y_{t}^{DQN} \equiv R_{t+1} + \gamma \max_{a}Q(S_{t+1},a;\theta_{t}^{-})
+\end{equation}
+
+
+
+\section{Double Q-learning}\label{Double Q-learning}
+
+Double Q-learning \cite{hasselt2010double} decouples the evaluation and selection of an action. Standard Q-learning sometimes result in extremely high action value. Together with the max operation in equation \ref{Parameter DQN} and \ref{parameter equation} are the overestimated action values selected and tends the Standard Q-learning to be overoptimistic.\cite{van2016deep}\\
+\newline
+The decoupling of the selection happens introducing two parameters $\theta_{t}$ and $\theta_{t}^{'}$. The target for Double Q-learning can defined as:
+\begin{equation}
+\label{Double Q Parameter}
+Y_{t}^{DQN} \equiv R_{t+1} + \gamma Q(S_{t+1},\argmax_{a}Q(S_{t+1},a;\theta_{t});\theta_{t}^{'})
+\end{equation}
+The first weights $\theta_{t}$ are the online weights, which are used to select the action. The second weights $\theta_{t}^t$ are used to evaluate the selected action more fairly.
+Note that,  $\theta_{t}$ can be $\theta_{t}^t$ updated symmetrically by switching the roles of the two weights after a certain amount of time.
+
+\section{Double DQN}
+
+Double DQN solves the issues of overoptimistic behaviour by using DQN with Double Q learning.
+In section \ref{Double Q-learning}, we saw that decoupling the selection and evaluation of the action value requires two separate weights. Further did we see in section \ref{Original DQN}, that DQN is already in the possession of a second set of weights, namely the target network. This makes is very easy to integrate double Q-learning in DQN. We define the target $Y_{t}^{Double DQN}$ as:
+\begin{equation}
+\label{Double DQN}
+Y_{t}^{Double DQN} \equiv R_{t+1} + \gamma Q(S_{t+1},\argmax _{a}Q(S_{t+1},a;\theta_{t});\theta^{-})
+\end{equation}
+The second weights $\theta_{t}^{'}$ of equation \ref{Double Q Parameter} are replaced by the weights of the target network $\theta^{-}$. Note that, $\theta^{-}$ still gets periodically updated by the online weights (as in the original DQN) and not symmetrically, as suggested in section \ref{Double Q-learning}. \\
+
+\section{Prioritized Experience Replay}\label{Prioritized Experience Replay}
+
+Prioritized Experience Replay is a different approach on fetching the experiences from the replay memory. DQN uses experience replay to break the correlation between the experiences. This is realised by saving all transitions and fetching them uniformly from the replay memory. The problem with this approach is that rare experience are forgotten and a lot of non-informative transitions are replayed.With Prioritized Experience replay we prioritize the transitions  and replay them based on their prior. \cite{schaul2015prioritized} discovered that prioritizing the transitions, makes the experience replay most of the time more efficient and effective.  
+
+\subsection{Prioritizing with TD-error}
+
+The measure for prioritizing every transition is essential to let this method work well. As a measurement to calculate the priors, we choice the temporal difference error (TD-error). The idea behind taking this measurement is the fact that the experiences with the biggest TD-error are to most `interesting' to replay. The TD-error $\delta_{j}$ for the transition $j$ of a vanilla DQN can be described as: 
+\begin{equation}
+\label{Transitions}
+\delta_{j} = R_{j} + \gamma_j \max_{a}Q(S_{t},a)-Q(S_{t-1},A_{t-1})
+\end{equation}
+
+As we can see is this a very convenient measure, since we already need to calculate it for the DQN. Although, there are some issues when using the TD-error. First of all updating the TD-errors. To update the TD-error, we need to sweep the entire replay memory. As a solution, we suggest to update only the TD-error, when the experience is replayed. Note that, as a consequence experiences with a low TD-error may take a long time before they get replayed. Another issue, slow convergence and the lack of diversity , when taking a greedy replay selection.\\
+As a solution for these issues, we use Stochastic Prioritization. 
+\subsection{Stochastic Prioritization}
+
+Stochastic Prioritization is an alternative selection method for the greedy selection method. This is also the sampling method, we will use during our experiments. Based on a certain on a certain probability, each sample will be picked from the replay memory. We define the probalibity for sample $i$ by:
+\begin{equation}
+P(i)=\frac{p_{i}^\alpha}{\sum_{k}{p_{k}^\alpha}}
+\end{equation} 
+
+with $p_i$ the priority of sample $i$ and $\alpha$ determining the importance of the priority.
+
+The priority can be represented in many ways. We represent it rank-based:
+\begin{equation}
+p_i=\frac{1}{rank(i)} 
+\end{equation}
+where $rank(i)$ is the rank of instance i in the sorted replay memory, according to $|\delta|$.
+
+Important to note is that these stochastic updates introduce bias. We correct this by introducing importance-sampling (IS) weights. \cite{schaul2015prioritized}
+
+\begin{equation}
+w_i=(\frac{1}{N}. \frac{1}{P(i)})^\beta 
+\end{equation}
+
+This correction is applied in the Q-learning update rule, where we use weighted deltas $w_i\delta_{i}$ instead of regular delta's $delta_i$
+
+Now, we know how Prioritized Experience Replay and Double Q learning are implemented in a DQN structure, we can continue with the experiments.
+\section{Atari Experiments}
+
+The main question of the paper is how do these adjustments influence the performance of the DQN. We will answer this question by empirically evaluating the adjustments separately and combined on two Atari Games. We take as a baseline the performance of the vanilla DQN on the Atari games.
+
+\subsection{Experimental Setup}
+
+The two Atari games, that will be learned are Boxing and Krull. All experiments are ran 5 times on the Hydra cluster with 16gb for each run. The network architecture for all experiments is the same and is identical to the network used in \cite{mnih2015human}. 
+
+\subsubsection{Hyper-parameters}\label{Hyper parameters}
+
+In all the experiments are the same hyper-parameters used. The parameter values will be based mainly on the hyper-parameters of the tuned DQN in \cite{mnih2015human}. The discount will be set to $\gamma=0.99$, and the learning rate to $\alpha=0.00025$. The number of steps between target network updates will be $\tau= 10000$. The training steps will be set to 20 million. The agent will be evaluated every X steps. The size of the experience replay memory will be 100000 transitions. The minibatch size is 32 and the history length and action step both 4 steps. At last we have $\epsilon$, which is at the start 1 and is linearly decreasing to 0.1.
+
+\subsection{Empirical Results of Double DQN}
+
+
+\subsection{DQN with Prioritized Experience Replay}
+
+\subsection{Empirical Results of Prioritized Double DQN}
+
+\subsection{Side Note}
+
+We know that the experimental setup is not ideal. 5 runs for each experiment and low amount of total steps makes the results less accurate. The reason is the limited time frame., which caused a lot of trouble. The initial idea was to conduct the experiments with the hyper-parameters of the original paper by \cite{mnih2015human}. Soon it became clear that an experiment with a memory-size of 1 million and 50 million steps, would not finish in time. As suggested, we tried to reduce the frame size to 42x42, but this resulted in almost no earning for several Atari games. Eventually after a lot of side-experiment, we ended up with the configuration suggested in \ref{Hyper parameters} and the two Atari games Krull and Boxing. Both of these games are selected based on their fast learning rate and good performance in a limited configuration. The limited time frame for this project had also an impact on the amount of runs. Ideally we liked to conduct 10 runs or more for each experiment. This meant that we had to run 80 runs at the same time on the hydracluster. Unfortunately, this seemed to be not possible, because or the UserRAMLimit. Also balancing the runs a bit more and only assign 16gb to experiments that needed it, dit not help. This resulted in several runs getting randomly killed after a few days. Eventually we succeed to create a stable experimental environment by doing only 5 runs per experiment. 
+
+\section{Discussion}
+
+
+%
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{apalike}
+\bibliography{bib}  % sigproc.bib is the name of the Bibliography in this case
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+%
+% ACM needs 'a single self-contained file'!
+%
+
+
+\end{document}

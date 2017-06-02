@@ -1,0 +1,30 @@
+\begin{thebibliography}{}
+
+\bibitem[Mnih et~al., 2015]{mnih2015human}
+Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A.~A., Veness, J., Bellemare,
+  M.~G., Graves, A., Riedmiller, M., Fidjeland, A.~K., Ostrovski, G., et~al.
+  (2015).
+\newblock Human-level control through deep reinforcement learning.
+\newblock {\em Nature}, 518(7540):529.
+
+\bibitem[Schaul et~al., 2015]{schaul2015prioritized}
+Schaul, T., Quan, J., Antonoglou, I., and Silver, D. (2015).
+\newblock Prioritized experience replay.
+\newblock {\em arXiv preprint arXiv:1511.05952}.
+
+\bibitem[Sutton and Barto, 1998]{sutton1998reinforcement}
+Sutton, R.~S. and Barto, A.~G. (1998).
+\newblock {\em Reinforcement learning: An introduction}, volume~1.
+\newblock MIT press Cambridge.
+
+\bibitem[Van~Hasselt et~al., 2016]{van2016deep}
+Van~Hasselt, H., Guez, A., and Silver, D. (2016).
+\newblock Deep reinforcement learning with double q-learning.
+\newblock In {\em AAAI}, pages 2094--2100.
+
+\bibitem[Watkins and Dayan, 1992]{watkins1992q}
+Watkins, C.~J. and Dayan, P. (1992).
+\newblock Q-learning.
+\newblock {\em Machine learning}, 8(3-4):279--292.
+
+\end{thebibliography}
