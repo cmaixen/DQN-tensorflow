@@ -64,7 +64,7 @@ class Agent(BaseModel):
       # 2. act
       screen, reward, terminal = self.env.act(action, is_training=True)
       # 3. observe
-      self.observe(screen, reward, action, terminal,self.history.get())
+      self.observe(screen, reward, action, terminal)
 
       if terminal:
         screen, reward, action, terminal = self.env.new_random_game()
@@ -135,16 +135,19 @@ class Agent(BaseModel):
 
     return action
 
-  def observe(self, screen, reward, action, terminal,old_state):
+  def observe(self, screen, reward, action, terminal):
     reward = max(self.min_reward, min(self.max_reward, reward))
 
     #IF WE HAVE PRIORITY REPLAY ENABLED WE STORE THE PREVIOUS STATE WITH IT
     # We let the agent handle the vision with the historylenght and not the replaymemory
     if self.config.priority_exp:
       #old_state
+      s_t = self.history.get()
       self.history.add(screen)
+      #new state 
+      s_t_plus_1 = self.history.get()
       #different add, with states old state en new state included
-      self.memory.add(old_state, reward, action, screen, terminal)
+      self.memory.add(s_t, reward, action, s_t_plus_1, terminal)
 
     else:
       self.history.add(screen)
