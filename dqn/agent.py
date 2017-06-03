@@ -315,7 +315,7 @@ class Agent(BaseModel):
       self.delta = self.target_q_t - q_acted
 
       self.importance_weight = tf.placeholder(name = 'importance_weight', shape = (None), dtype = tf.float32)
-      self.weighted_delta = tf.multiply(self.delta, self.importance_weight)
+      self.weighted_delta = tf.mul(self.delta, self.importance_weight)
 
       self.global_step = tf.Variable(0, trainable=False)
       self.loss = tf.reduce_mean(clipped_error(self.weighted_delta), name='loss')
@@ -340,15 +340,15 @@ class Agent(BaseModel):
 
       for tag in scalar_summary_tags:
         self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag.replace(' ', '_'))
-        self.summary_ops[tag]  = tf.summary.scalar("%s-%s/%s" % (self.env_name, self.env_type, tag), self.summary_placeholders[tag])
+        self.summary_ops[tag]  = tf.scalar_summary("%s-%s/%s" % (self.env_name, self.env_type, tag), self.summary_placeholders[tag])
 
       histogram_summary_tags = ['episode.rewards', 'episode.actions']
 
       for tag in histogram_summary_tags:
         self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag.replace(' ', '_'))
-        self.summary_ops[tag]  = tf.summary.histogram(tag, self.summary_placeholders[tag])
+        self.summary_ops[tag]  = tf.histogram_summary(tag, self.summary_placeholders[tag])
 
-      # self.writer = tf.train.SummaryWriter('./logs/%s' % self.model_dir, self.sess.graph)
+      self.writer = tf.train.SummaryWriter('./logs/%s' % self.model_dir, self.sess.graph)
 
     tf.initialize_all_variables().run()
 
