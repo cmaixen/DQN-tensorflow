@@ -64,7 +64,7 @@ class Agent(BaseModel):
       # 2. act
       screen, reward, terminal = self.env.act(action, is_training=True)
       # 3. observe
-      self.observe(screen, reward, action, terminal)
+      self.observe(screen, reward, action, terminal,self.history.get())
 
       if terminal:
         screen, reward, action, terminal = self.env.new_random_game()
@@ -135,19 +135,16 @@ class Agent(BaseModel):
 
     return action
 
-  def observe(self, screen, reward, action, terminal):
+  def observe(self, screen, reward, action, terminal,old_state):
     reward = max(self.min_reward, min(self.max_reward, reward))
 
     #IF WE HAVE PRIORITY REPLAY ENABLED WE STORE THE PREVIOUS STATE WITH IT
     # We let the agent handle the vision with the historylenght and not the replaymemory
     if self.config.priority_exp:
       #old_state
-      s_t = self.history.get()
       self.history.add(screen)
-      #new state 
-      s_t_plus_1 = self.history.get()
       #different add, with states old state en new state included
-      self.memory.add(s_t, reward, action, s_t_plus_1, terminal)
+      self.memory.add(old_state, reward, action, screen, terminal)
 
     else:
       self.history.add(screen)
@@ -318,7 +315,7 @@ class Agent(BaseModel):
       self.delta = self.target_q_t - q_acted
 
       self.importance_weight = tf.placeholder(name = 'importance_weight', shape = (None), dtype = tf.float32)
-      self.weighted_delta = tf.mul(self.delta, self.importance_weight)
+      self.weighted_delta = tf.multiply(self.delta, self.importance_weight)
 
       self.global_step = tf.Variable(0, trainable=False)
       self.loss = tf.reduce_mean(clipped_error(self.weighted_delta), name='loss')
@@ -343,15 +340,15 @@ class Agent(BaseModel):
 
       for tag in scalar_summary_tags:
         self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag.replace(' ', '_'))
-        self.summary_ops[tag]  = tf.scalar_summary("%s-%s/%s" % (self.env_name, self.env_type, tag), self.summary_placeholders[tag])
+        self.summary_ops[tag]  = tf.summary.scalar("%s-%s/%s" % (self.env_name, self.env_type, tag), self.summary_placeholders[tag])
 
       histogram_summary_tags = ['episode.rewards', 'episode.actions']
 
       for tag in histogram_summary_tags:
         self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag.replace(' ', '_'))
-        self.summary_ops[tag]  = tf.histogram_summary(tag, self.summary_placeholders[tag])
+        self.summary_ops[tag]  = tf.summary.histogram(tag, self.summary_placeholders[tag])
 
-      self.writer = tf.train.SummaryWriter('./logs/%s' % self.model_dir, self.sess.graph)
+      # self.writer = tf.train.SummaryWriter('./logs/%s' % self.model_dir, self.sess.graph)
 
     tf.initialize_all_variables().run()
 
