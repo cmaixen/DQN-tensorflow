@@ -1,5 +1,17 @@
 \begin{thebibliography}{}
 
+\bibitem[Hasselt, 2010]{hasselt2010double}
+Hasselt, H.~V. (2010).
+\newblock Double q-learning.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  2613--2621.
+
+\bibitem[Lin, 1992]{lin1992self}
+Lin, L.-J. (1992).
+\newblock Self-improving reactive agents based on reinforcement learning,
+  planning and teaching.
+\newblock {\em Machine learning}, 8(3-4):293--321.
+
 \bibitem[Mnih et~al., 2015]{mnih2015human}
 Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A.~A., Veness, J., Bellemare,
   M.~G., Graves, A., Riedmiller, M., Fidjeland, A.~K., Ostrovski, G., et~al.
