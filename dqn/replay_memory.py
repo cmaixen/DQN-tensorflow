@@ -119,7 +119,7 @@ class PrioritizedReplayMemory(object):
       self.beta_zero = 0.5
       self.learn_start = config.learn_start
 
-      # http://www.evernote.com/l/ACnDUVK3ShVEO7fDm38joUGNhDik3fFaB5o/
+
       self.total_steps = config.max_step
 
       self.index = 0
@@ -183,10 +183,7 @@ class PrioritizedReplayMemory(object):
 
 
     def fix_index(self):
-        """
-        get next insert index of our memory
-        :return: index, int
-        """
+        #get next insert index of our memory -> returns: index
         if self.record_size <= self.size:
             self.record_size += 1
         if self.index % self.size == 0:
